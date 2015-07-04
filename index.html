@@ -3,24 +3,98 @@
   <head>
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
+	<link rel="stylesheet" href="main.css">
   </head>
   <body>
+		
+		<nav class="navbar">
+			<ul>
+				<li>Home</li>
+				<li>Notification</li>
+				<li>Messages</li>
+				<li></li>
+			</ul>
+		</nav>
+		
+		<div class="feed">
+		</div>
+		
+		<div id="contact">
+			<h2>Compose new Tweet</h2>
+			<form action="#">
+				<ul>
+					<li>
+						<textarea name="comments" id="comments" cols="80" rows="4"></textarea>
+					</li>
+					<li>
+						<input type="submit" value="Submit">
+					</li>
+				</ul>
+			</form>
+		</div>
+		
     <script>
-
+ 
       $(document).ready(function(){
-        var $body = $('body');
-        $body.html('');
+        var $feed = $('div.feed');
+        $feed.html('');
 
         var index = streams.home.length - 1;
         while(index >= 0){
           var tweet = streams.home[index];
           var $tweet = $('<div></div>');
           $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
+          $tweet.appendTo($feed);
+					$tweet.addClass('tweet');
           index -= 1;
         }
 
       });
+			
+			(function() {
+
+			$('html').addClass('js');
+			var contactForm = {
+				container: $('#contact'),
+				config: {
+					effect: 'fadeToggle',
+					speed: 500
+				},
+				init: function(config) {
+					$.extend(this.config, config);
+					$('<button></button>', {
+						text: 'New Tweet'
+					})
+						.insertAfter( 'nav.navbar ul li:nth-child(3)' )
+						.on( 'click', this.show );
+				},
+				show: function() {
+					var cf = contactForm,
+						container = cf.container,
+						config = cf.config;
+					if ( container.is(':hidden') ) {
+						contactForm.close.call(container);
+						container[config.effect](config.speed);
+					}
+				},
+				close: function() {
+					var $this = $(this), // #contact
+						config = contactForm.config;
+					if ( $this.find('span.close').length ) return;
+					$('<span class=close>X</span>')
+						.prependTo(this)
+						.on('click', function() {
+							// this = span
+							$this[config.effect](config.speed);
+						})
+				}
+			};
+			contactForm.init({
+				// effect: 'fadeToggle',
+				speed: 200
+			});
+			})();
+
 
     </script>
   </body>

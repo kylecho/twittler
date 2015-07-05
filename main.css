@@ -30,9 +30,21 @@ div.feed {
 }
 
 .tweet {
-	line-height: 1.5em;
-	padding: 15px;
+	line-height: 0.5em;
+	padding: 5px 10px 5px 25px;
 	border-bottom: 1px solid #e1e1e1;
+}
+
+.newTweet {
+	line-height: 0.5em;
+	padding: 5px 10px 5px 25px;
+	border-bottom: 1px solid #e1e1e1;
+	text-align: center;
+}
+
+#meta {
+	color: #8899a6;
+	font-size: 13px;
 }
 
 /* contact */

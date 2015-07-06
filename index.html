@@ -1,147 +1,79 @@
 <!DOCTYPE html>
 <html>
   <head>
+		<title>Twittler</title>
     <script src="jquery.js"></script>
 		<script src="jquery.timeago.js" type="text/javascript"></script>
     <script src="data_generator.js"></script>
-	<link rel="stylesheet" href="main.css">
+		<link rel="stylesheet" href="main.css">
   </head>
   <body>
 		
-		<nav class="navbar">
-			<ul>
-				<li>Home</li>
-				<li>Notification</li>
-				<li>Messages</li>
-				<li></li>
-			</ul>
-		</nav>
-		
-		<div class="feed">
-			<div class=newTweet>
-				<p>View 1 new tweet</p>
+		<div class="container">
+			<div class="alert">
+			</div>
+			<div class="tweets">
 			</div>
 		</div>
 		
-		<div id="contact">
-			<h2>Compose new Tweet</h2>
-			<form action="#">
-				<ul>
-					<li>
-						<textarea name="comments" id="comments" cols="80" rows="4"></textarea>
-					</li>
-					<li>
-						<input type="submit" value="Submit">
-					</li>
-				</ul>
-			</form>
-		</div>
-
-		
-		<script id=tweetTemplate type=template>
-			<div class=tweet>
-				<p><strong>{{name}}</strong> <span id="meta">@{{name}} ∙ {{date}}</span></p>
-				<p>{{tweet}}</p>
-			</div>
-		</script>
-		
-		
-    <script>
- 
-//      $(document).ready(function(){
-//        var $feed = $('div.feed');
-//        $feed.html('');
-//
-//        var index = streams.home.length - 1;
-//        while(index >= 0){
-//          var tweet = streams.home[index];
-//          var $tweet = $('<div></div>');
-//          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-//          $tweet.appendTo($feed);
-//					$tweet.addClass('tweet');
-//          index -= 1;
-//        }
-//
-//      });
+		<script>
 			
-			/* Attach Timeago Plugin to jQuery */
+			// Display first 11 tweets
+			var tweet = streams.home;
+			for (var i = streams.home.length - 1; i >= 0; i--) {
+				$('.tweets').append(
+					'<div><p><a id="' + tweet[i].user + '">' + tweet[i].user + '</a> <span id="meta">@'
+					+ tweet[i].user + ' ∙ ' + $.timeago(tweet[i].created_at) + '</span></p><p>'
+					+ tweet[i].message + '</p></div>')
+			}
 			
-			jQuery(document).ready(function() {
-  			jQuery("abbr.timeago").timeago();
-			});
-			
-			/* Display Tweets */
-			
-			(function(){
-				template = $.trim( $('#tweetTemplate').html() );
-				
-				$.each( window.streams.home, function(index, obj) {
-					var temp =
-					template.replace( /{{name}}/ig , obj.user )
-									.replace( /{{date}}/ig , jQuery.timeago(obj.created_at) )
-									.replace( /{{tweet}}/ig , obj.message  );
-					$('div.feed').append(temp);
-
-				/* Check New Tweets */
-				var newTweets;
+			// Implement a view-new-tweet button
+			var tweetAlert = function(){
 				setInterval(function(){
-					newTweets = window.streams.home.length - $('div.feed').children().length;
-				}, 1000);
-				
-				});
-			})();
-
-			
-
-
-			
-			/* Display New Tweet Form */
-			
-			(function() {
-
-			$('html').addClass('js');
-			var contactForm = {
-				container: $('#contact'),
-				config: {
-					effect: 'fadeToggle',
-					speed: 500
-				},
-				init: function(config) {
-					$.extend(this.config, config);
-					$('<button></button>', {
-						text: 'New Tweet'
-					})
-						.insertAfter( 'nav.navbar ul li:nth-child(3)' )
-						.on( 'click', this.show );
-				},
-				show: function() {
-					var cf = contactForm,
-						container = cf.container,
-						config = cf.config;
-					if ( container.is(':hidden') ) {
-						contactForm.close.call(container);
-						container[config.effect](config.speed);
+					var shown = $('.tweets').children().length;
+					var unshown = streams.home.length;
+					if (unshown - shown > 0 && unshown - shown === 1) {
+						$('.alert').html('<p>View '
+																 + (unshown - shown) + ' new Tweet</p>');	
+					} else if (unshown - shown > 1) {
+						$('.alert').html('<p>View '
+																 + (unshown - shown) + ' new Tweets</p>');	
 					}
-				},
-				close: function() {
-					var $this = $(this), // #contact
-						config = contactForm.config;
-					if ( $this.find('span.close').length ) return;
-					$('<span class=close>X</span>')
-						.prependTo(this)
-						.on('click', function() {
-							// this = span
-							$this[config.effect](config.speed);
-						})
-				}
+				}, 4000);
 			};
-			contactForm.init({
-				// effect: 'fadeToggle',
-				speed: 200
+			
+			// Starts tweetAlert function
+			tweetAlert();
+			
+			// Fetch new tweets
+			$('.alert').on('click', function() {
+				var tweet = streams.home;
+				var unshown = streams.home.length;
+				$('.tweets').html('');
+				for (var i = unshown - 1; i >= 0; i--) {
+					$('.tweets').append(
+						'<div><p><a id="' + tweet[i].user + '">' + tweet[i].user + '</a> <span id="meta">@'
+						+ tweet[i].user + ' ∙ ' + $.timeago(tweet[i].created_at) + '</span></p><p>'
+						+ tweet[i].message + '</p></div>')
+				}
+				$('.alert').html('');
+				tweetAlert();
 			});
-			})();
-
-
-    </script>
+			
+			// Generate a user specific feed
+			$('.tweets').on('click', 'a', function() {
+				var unshown = streams.home.length;
+				$('.tweets').html('');
+				for (var i = unshown - 1; i >= 0; i--) {
+					if (tweet[i].user === $(this).text()) {
+					$('.tweets').append(
+						'<div><p><a id="' + tweet[i].user + '">' + tweet[i].user + '</a> <span id="meta">@'
+						+ tweet[i].user + ' ∙ ' + $.timeago(tweet[i].created_at) + '</span></p><p>'
+						+ tweet[i].message + '</p></div>')
+					}
+				}
+			});
+			
+		</script>
   </body>
 </html>
